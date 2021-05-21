@@ -1,0 +1,75 @@
+{% extends "network/layout.html" %}
+{% block heading %}
+    {% with r=posts.count %}
+    <style>
+        .all_posts {
+            display: grid;
+            grid-gap: 10px;
+            margin-left: 10px;
+
+        }
+        .border border-dark {
+            display: grid;
+            grid-template-rows: repeat({{r}}, auto);
+        }
+        .link {
+            color: black
+        }
+        .post {
+            margin: 20px;
+            font-family: sans-serif;
+        }
+    </style>
+    <script>
+        function like(id) {
+            fetch(`http://127.0.0.1:8000/postLike/`+id)
+                .then(response => response)
+                .then(resultId => {
+                    console.log(resultId);
+                });
+        }
+
+    </script>
+    {% endwith %}
+{% endblock %}
+
+{% block body %}
+
+<h1>All Posts</h1>
+<div class="all_posts">
+<div class="border border-dark">
+    <h3 style="margin: 25px">New Post</h3>
+    {% if request.user.is_authenticated %}
+        <form method="post" action="{% url 'index' %}">
+            {% csrf_token %}
+            <span>{{ form.as_p }}</span>
+            <input class="btn btn-primary" type="submit" value="Post">
+        </form>
+    {% endif %}
+</div>
+    {% for post in page_obj %}
+        <div class="border border-dark">
+            <div class="post">
+                <h3><a class="link" href="{% url 'user_page' post.user %}">{{ post.user }}</a></h3>
+                <a href="{% url 'edit' post.id %}">Edit</a><br>
+                {{ post.text }}<br>
+                    <span style="color: #A9A9A9">
+                        {{ post.created_at }}<br/>
+                        <strong id="likes">{{ post.likes }}</strong>
+                        <button onclick="like({{post.id}})" id="like">likes</button>
+                    </span>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+<nav aria-label="Page navigation example">
+    <ul class="pagination">
+        {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="{% url 'index' %}?page={{page_obj.previous_page_number}}">Previous Page</a></li>
+        {% endif %}
+        {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="{% url 'index' %}?page={{page_obj.next_page_number}}">Next Page</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endblock %}

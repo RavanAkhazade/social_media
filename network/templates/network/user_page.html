@@ -1,0 +1,17 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+    <h1>{{ author_of_post }}</h1>
+    {{ followers }} followers<br>
+    {% if author_of_post != request.user and user.is_authenticated %}
+        <form method="post" action="{% url 'user_page' author_of_post %}">
+            {% csrf_token %}
+            <input class="btn btn-primary" type="submit" value="Follow">
+        </form>
+    {% endif %}
+    {% for post in posts %}
+        {{ post.text }}<br>
+        {{ post.created_at }}<br>
+        {{ post.likes }}<br>
+    {% endfor %}
+{% endblock %}
